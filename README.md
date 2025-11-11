@@ -2,6 +2,17 @@
 
 A Discord bot using Gemini for generative AI responses.
 
+## Features
+
+*   **Conversational AI:** Powered by the Gemini 2.5 Pro model, the bot engages in natural, human-like conversations.
+*   **Customizable Personality:** Define the bot's personality, including its nickname, writing style, humor, and more, through an external JSON file.
+*   **Probabilistic Response:** The bot's response frequency is controlled by a configurable probability, preventing it from replying to every message and creating a more organic interaction.
+*   **Idle Chatter:** Keep conversations alive with a feature that allows the bot to send messages automatically when a channel has been inactive for a specified period.
+*   **Delayed Reactions:** The bot can identify and respond to interesting but unanswered messages from the chat history, adding a unique layer of conversational depth.
+*   **Direct Message Support:** The bot is fully functional in direct messages, with a separate response probability for more frequent interaction in private conversations.
+*   **Multimedia Support:** The bot can analyze and comment on images, as well as transcribe and respond to audio messages, making it a versatile conversational partner.
+*   **Debug Logging:** Enable detailed debug logging for development and troubleshooting to gain insight into the bot's operations.
+
 ## Installation
 
 1. Clone the repository.
