@@ -1,0 +1,10 @@
+[
+  {
+    "token": "YOUR_DISCORD_BOT_TOKEN",
+    "personalityFilePath": "path/to/your/personality.json",
+    "targetChannelId": "YOUR_TARGET_CHANNEL_ID",
+    "responseProbability": 0.20,
+    "idleChatterEnabled": true,
+    "delayedReactionEnabled": true
+  }
+]

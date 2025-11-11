@@ -14,14 +14,7 @@ export interface Personality {
   }[];
 }
 
-let personality: Personality | null = null;
-
-export function loadPersonality(filePath: string): void {
-  if (personality) {
-    console.log('Personality is already loaded.');
-    return;
-  }
-
+export function loadPersonality(filePath: string): Personality {
   const resolvedPath = path.resolve(filePath);
   if (!fs.existsSync(resolvedPath)) {
     throw new Error(`Personality file not found at: ${resolvedPath}`);
@@ -38,13 +31,6 @@ export function loadPersonality(filePath: string): void {
 
   // For simplicity, we'll use the first user's personality for the bot
   const loadedPersonality = users[0];
-  personality = loadedPersonality;
   console.log(`Personality loaded for: ${loadedPersonality.nickname}`);
-}
-
-export function getPersonality(): Personality {
-  if (!personality) {
-    throw new Error('Personality has not been loaded. Call loadPersonality first.');
-  }
-  return personality;
+  return loadedPersonality;
 }

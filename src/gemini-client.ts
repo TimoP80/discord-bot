@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, Part } from '@google/generative-ai';
-import { getPersonality } from './personality';
+import { Personality } from './personality';
 import axios from 'axios';
 import { debugLog } from './debug-logger';
 
@@ -29,14 +29,13 @@ function sanitizeResponse(text: string): string {
 }
 
 export async function generateResponse(
+  personality: Personality,
   prompt: string,
   imageUrl?: string,
   imageMimeType?: string,
   audioUrl?: string,
   audioMimeType?: string
 ): Promise<string> {
-  const personality = getPersonality();
-
   const fullPrompt = `
     You are ${personality.nickname}.
     Your personality is: ${personality.personality}.
