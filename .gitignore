@@ -1,8 +1,71 @@
 # Dependencies
 /node_modules
 
-# Environment variables
+# Environment variables and sensitive data
 .env
+.env.*
+.env.backup
+.env.example
+google-service-account.json
 
 # Build output
 /dist
+/config/.env
+
+# Database and data files
+db.json
+*.json.backup
+
+# Logs and temporary files
+*.log
+temp/
+*.tmp
+temp_*
+
+# Test files and scripts
+test_*.js
+test_*.ts
+simple-*.js
+final-*.js
+debug_*.py
+fix_*.js
+
+# AI model files and training data
+Modelfile.*
+*.gguf
+*.bin
+*.txt
+training_data/
+test_training.jsonl
+
+# Documentation and guides (keep only essential)
+AHMA_*.md
+NEXT_STEPS.md
+SETUP_GUIDE.md
+*.txt
+*.response
+
+# Development and build artifacts
+package-lock.json
+*.backup
+dasu.*
+timbor*
+
+# Electron and GUI build files
+out/
+build/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup and old files
+*.old
+*.bak
+*~

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Bot Control Panel</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .logo {
+            font-size: 72px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #4a5568;
+        }
+
+        .btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .btn-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .btn-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .btn-description {
+            font-size: 14px;
+            color: #718096;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .status.info {
+            background: #e6fffa;
+            border: 1px solid #b2f5ea;
+            color: #234e52;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Discord Bot Control Panel</h1>
+        <p class="subtitle">
+            Manage your Discord bots and ElevenLabs AI agents from a unified interface.
+            Create conversational agents, test interactions, and configure your bot ecosystem.
+        </p>
+
+        <div class="button-grid">
+            <button class="btn" onclick="openAgentManager()">
+                <div class="btn-icon">🤖</div>
+                <div class="btn-title">Agent Manager</div>
+                <div class="btn-description">
+                    Create and manage ElevenLabs conversational AI agents with custom personalities and languages.
+                </div>
+            </button>
+
+            <button class="btn" onclick="openBotConfig()">
+                <div class="btn-icon">⚙️</div>
+                <div class="btn-title">Bot Configuration</div>
+                <div class="btn-description">
+                    Configure bot settings, personality files, and integration options for your Discord bots.
+                </div>
+            </button>
+
+            <button class="btn" onclick="openSimulation()">
+                <div class="btn-icon">🎭</div>
+                <div class="btn-title">Simulation Control</div>
+                <div class="btn-description">
+                    Control bot simulation modes, test interactions, and monitor bot behavior patterns.
+                </div>
+            </button>
+
+            <button class="btn" onclick="openLogs()">
+                <div class="btn-icon">📊</div>
+                <div class="btn-title">Logs & Analytics</div>
+                <div class="btn-description">
+                    View bot activity logs, conversation analytics, and performance metrics.
+                </div>
+            </button>
+        </div>
+
+        <div class="status info">
+            <strong>💡 Tip:</strong> Use the menu bar (File → Open Agent Manager) or keyboard shortcuts to quickly access tools.
+        </div>
+
+        <div class="footer">
+            Discord Bot Control Panel • Powered by Electron & ElevenLabs
+        </div>
+    </div>
+
+    <script>
+        function openAgentManager() {
+            // IPC call to open agent manager (will be handled by main process)
+            if (window.electronAPI && window.electronAPI.openAgentManager) {
+                window.electronAPI.openAgentManager();
+            } else {
+                // Fallback for when running in browser or limited environment
+                alert('Agent Manager requires the Electron desktop application.\n\nPlease run: npm run electron');
+            }
+        }
+
+        function openBotConfig() {
+            if (window.electronAPI && window.electronAPI.openBotConfig) {
+                window.electronAPI.openBotConfig();
+            } else {
+                alert('Bot Configuration requires the Electron desktop application.\n\nPlease run: npm run electron');
+            }
+        }
+
+        function openSimulation() {
+            if (window.electronAPI && window.electronAPI.openSimulation) {
+                window.electronAPI.openSimulation();
+            } else {
+                alert('Simulation Control requires the Electron desktop application.\n\nPlease run: npm run electron');
+            }
+        }
+
+        function openLogs() {
+            if (window.electronAPI && window.electronAPI.openLogs) {
+                window.electronAPI.openLogs();
+            } else {
+                alert('Logs & Analytics requires the Electron desktop application.\n\nPlease run: npm run electron');
+            }
+        }
+
+        // Check if we're in Electron environment
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.electronAPI !== 'undefined') {
+                console.log('Running in Electron environment');
+            } else {
+                console.log('Running in browser environment');
+                // Add browser-specific adjustments if needed
+            }
+        });
+    </script>
+</body>
+</html>

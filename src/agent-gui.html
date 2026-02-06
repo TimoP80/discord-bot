@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevenLabs Agent Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .status-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-dot.configured { background-color: #4CAF50; }
+        .status-dot.not-configured { background-color: #f44336; }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
+        .agents-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a67d8;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .agents-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .agent-card {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .agent-card:hover {
+            background-color: #f8f9fa;
+        }
+
+        .agent-card:last-child {
+            border-bottom: none;
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .agent-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2d3748;
+        }
+
+        .agent-id {
+            font-size: 12px;
+            color: #718096;
+            font-family: monospace;
+        }
+
+        .agent-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .agent-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .agent-prompt {
+            font-size: 14px;
+            color: #4a5568;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .agent-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .agent-actions .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .create-agent-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #718096;
+        }
+
+        .conversation-history {
+            margin-top: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .message.user {
+            background-color: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .message.assistant {
+            background-color: #f3e5f5;
+            margin-right: 20px;
+        }
+
+        .message-header {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .message-content {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .test-chat {
+            margin-top: 20px;
+        }
+
+        .test-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .test-input input {
+            flex: 1;
+        }
+
+        .test-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .create-agent-panel {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 ElevenLabs Agent Manager</h1>
+        <p>Manage your conversational AI agents with ease</p>
+    </div>
+
+    <div class="container">
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot" id="configStatus"></div>
+                <span id="configText">Checking configuration...</span>
+            </div>
+            <div class="status-item">
+                <span id="agentCount">0 agents</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="agents-panel">
+                <div class="panel-header">
+                    <h2>Your Agents</h2>
+                    <button class="btn btn-primary" id="refreshBtn">
+                        🔄 Refresh
+                    </button>
+                </div>
+                <div class="agents-list" id="agentsList">
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        Loading agents...
+                    </div>
+                </div>
+            </div>
+
+            <div class="create-agent-panel">
+                <h2 style="margin-bottom: 20px;">Create New Agent</h2>
+                <form id="createAgentForm">
+                    <div class="form-group">
+                        <label class="form-label" for="agentName">Agent Name</label>
+                        <input type="text" id="agentName" class="form-input" placeholder="e.g., Friendly Assistant" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="agentLanguage">Primary Language</label>
+                        <select id="agentLanguage" class="form-input" required>
+                            <option value="en">English</option>
+                            <option value="fi">Finnish</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="ru">Russian</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="zh">Chinese</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="agentPersonality">Personality</label>
+                        <input type="text" id="agentPersonality" class="form-input" placeholder="e.g., friendly, professional, humorous" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="systemPrompt">System Prompt</label>
+                        <textarea id="systemPrompt" class="form-textarea" placeholder="Describe how the agent should behave, its personality, knowledge, and communication style..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        ✨ Create Agent
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for conversation history -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Conversation History</h3>
+                <button class="close-btn" id="closeHistoryModal">&times;</button>
+            </div>
+            <div id="conversationHistory">
+                Loading history...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for testing agent -->
+    <div class="modal" id="testModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Test Agent Conversation</h3>
+                <button class="close-btn" id="closeTestModal">&times;</button>
+            </div>
+            <div class="test-chat">
+                <div class="test-input">
+                    <input type="text" id="testMessage" class="form-input" placeholder="Type your message here...">
+                    <select id="testLanguage" class="form-input" style="width: 100px;">
+                        <option value="en">EN</option>
+                        <option value="fi">FI</option>
+                    </select>
+                    <button class="btn btn-primary" id="sendTestMessage">Send</button>
+                </div>
+                <div class="test-messages" id="testMessages">
+                    Start a conversation with your agent!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentAgentId = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadInitialData();
+        });
+
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('createAgentForm').addEventListener('submit', handleCreateAgent);
+
+            // Buttons
+            document.getElementById('refreshBtn').addEventListener('click', loadAgents);
+
+            // Modal close buttons
+            document.getElementById('closeHistoryModal').addEventListener('click', () => {
+                document.getElementById('historyModal').classList.remove('show');
+            });
+
+            document.getElementById('closeTestModal').addEventListener('click', () => {
+                document.getElementById('testModal').classList.remove('show');
+            });
+
+            // Test chat
+            document.getElementById('sendTestMessage').addEventListener('click', handleTestMessage);
+            document.getElementById('testMessage').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleTestMessage();
+                }
+            });
+        }
+
+        async function loadInitialData() {
+            await checkConfiguration();
+            await loadAgents();
+        }
+
+        async function checkConfiguration() {
+            try {
+                const result = await window.agentAPI.checkConfig();
+                const statusDot = document.getElementById('configStatus');
+                const statusText = document.getElementById('configText');
+
+                if (result.isConfigured) {
+                    statusDot.className = 'status-dot configured';
+                    statusText.textContent = 'ElevenLabs configured';
+                } else {
+                    statusDot.className = 'status-dot not-configured';
+                    statusText.textContent = result.hasApiKey ?
+                        'API key set but service not initialized' :
+                        'ElevenLabs API key not configured';
+                }
+            } catch (error) {
+                console.error('Error checking configuration:', error);
+                document.getElementById('configStatus').className = 'status-dot not-configured';
+                document.getElementById('configText').textContent = 'Configuration check failed';
+            }
+        }
+
+        async function loadAgents() {
+            const agentsList = document.getElementById('agentsList');
+            agentsList.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading"></div><br>Loading agents...</div>';
+
+            try {
+                const result = await window.agentAPI.getAllAgents();
+
+                if (result.success) {
+                    displayAgents(result.agents);
+                    document.getElementById('agentCount').textContent = `${result.agents.length} agents`;
+                } else {
+                    agentsList.innerHTML = `<div style="text-align: center; padding: 40px; color: #e53e3e;">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading agents:', error);
+                agentsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #e53e3e;">Failed to load agents</div>';
+            }
+        }
+
+        function displayAgents(agents) {
+            const agentsList = document.getElementById('agentsList');
+
+            if (agents.length === 0) {
+                agentsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🤖</div>
+                        No agents created yet.<br>
+                        Create your first agent using the form on the right!
+                    </div>
+                `;
+                return;
+            }
+
+            agentsList.innerHTML = agents.map(agent => `
+                <div class="agent-card">
+                    <div class="agent-header">
+                        <div>
+                            <div class="agent-name">${agent.name}</div>
+                            <div class="agent-id">${agent.id.substring(0, 12)}...</div>
+                        </div>
+                    </div>
+                    <div class="agent-meta">
+                        <span>🌍 ${agent.language?.toUpperCase() || 'EN'}</span>
+                        <span>🎭 ${agent.personality || 'Default'}</span>
+                    </div>
+                    <div class="agent-prompt">${agent.systemPrompt.substring(0, 150)}${agent.systemPrompt.length > 150 ? '...' : ''}</div>
+                    <div class="agent-actions">
+                        <button class="btn btn-secondary" onclick="showHistory('${agent.id}')">📜 History</button>
+                        <button class="btn btn-primary" onclick="testAgent('${agent.id}')">💬 Test</button>
+                        <button class="btn btn-danger" onclick="deleteAgent('${agent.id}', '${agent.name}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleCreateAgent(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('agentName').value.trim();
+            const language = document.getElementById('agentLanguage').value;
+            const personality = document.getElementById('agentPersonality').value.trim();
+            const systemPrompt = document.getElementById('systemPrompt').value.trim();
+
+            if (!name || !systemPrompt || !personality) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Creating...';
+            submitBtn.disabled = true;
+
+            try {
+                const result = await window.agentAPI.createAgent({
+                    name,
+                    systemPrompt,
+                    language,
+                    personality
+                });
+
+                if (result.success) {
+                    // Clear form
+                    document.getElementById('createAgentForm').reset();
+                    // Reload agents
+                    await loadAgents();
+                    alert(`✅ Agent "${result.agent.name}" created successfully!`);
+                } else {
+                    alert(`❌ Failed to create agent: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error creating agent:', error);
+                alert('❌ Failed to create agent');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function deleteAgent(agentId, agentName) {
+            if (!confirm(`Are you sure you want to delete agent "${agentName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const result = await window.agentAPI.deleteAgent(agentId);
+
+                if (result.success) {
+                    await loadAgents();
+                    alert(`✅ Agent "${agentName}" deleted successfully!`);
+                } else {
+                    alert(`❌ Failed to delete agent: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting agent:', error);
+                alert('❌ Failed to delete agent');
+            }
+        }
+
+        async function showHistory(agentId) {
+            const modal = document.getElementById('historyModal');
+            const historyDiv = document.getElementById('conversationHistory');
+
+            historyDiv.innerHTML = '<div class="loading"></div> Loading history...';
+            modal.classList.add('show');
+
+            try {
+                const result = await window.agentAPI.getConversationHistory(agentId);
+
+                if (result.success) {
+                    if (result.history.length === 0) {
+                        historyDiv.innerHTML = '<p style="text-align: center; color: #718096;">No conversation history yet.</p>';
+                    } else {
+                        historyDiv.innerHTML = result.history.map(msg => `
+                            <div class="message ${msg.role}">
+                                <div class="message-header">${msg.role === 'user' ? 'You' : 'Agent'} • ${new Date(msg.timestamp).toLocaleString()}</div>
+                                <div class="message-content">${msg.content}</div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    historyDiv.innerHTML = `<p style="color: #e53e3e;">Error: ${result.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyDiv.innerHTML = '<p style="color: #e53e3e;">Failed to load conversation history</p>';
+            }
+        }
+
+        function testAgent(agentId) {
+            currentAgentId = agentId;
+            document.getElementById('testModal').classList.add('show');
+            document.getElementById('testMessages').innerHTML = 'Start a conversation with your agent!';
+            document.getElementById('testMessage').focus();
+        }
+
+        async function handleTestMessage() {
+            const messageInput = document.getElementById('testMessage');
+            const languageSelect = document.getElementById('testLanguage');
+            const message = messageInput.value.trim();
+
+            if (!message || !currentAgentId) return;
+
+            const messagesDiv = document.getElementById('testMessages');
+
+            // Add user message
+            messagesDiv.innerHTML += `
+                <div class="message user">
+                    <div class="message-header">You</div>
+                    <div class="message-content">${message}</div>
+                </div>
+            `;
+
+            // Clear input
+            messageInput.value = '';
+
+            // Add loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = `
+                <div class="message assistant">
+                    <div class="message-header">Agent</div>
+                    <div class="message-content"><div class="loading"></div> Thinking...</div>
+                </div>
+            `;
+            messagesDiv.appendChild(loadingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            try {
+                const result = await window.agentAPI.testConversation(currentAgentId, message, languageSelect.value);
+
+                // Remove loading
+                loadingDiv.remove();
+
+                if (result.success) {
+                    messagesDiv.innerHTML += `
+                        <div class="message assistant">
+                            <div class="message-header">Agent</div>
+                            <div class="message-content">${result.response}</div>
+                        </div>
+                    `;
+                } else {
+                    messagesDiv.innerHTML += `
+                        <div class="message assistant">
+                            <div class="message-header">Agent</div>
+                            <div class="message-content" style="color: #e53e3e;">Error: ${result.error}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                loadingDiv.remove();
+                messagesDiv.innerHTML += `
+                    <div class="message assistant">
+                        <div class="message-header">Agent</div>
+                        <div class="message-content" style="color: #e53e3e;">Failed to get response</div>
+                    </div>
+                `;
+                console.error('Error testing conversation:', error);
+            }
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Global functions for onclick handlers
+        window.showHistory = showHistory;
+        window.testAgent = testAgent;
+        window.deleteAgent = deleteAgent;
+    </script>
+</body>
+</html>

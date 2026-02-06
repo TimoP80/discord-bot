@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Configuration Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
+        .bots-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .bots-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .bot-card {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .bot-card:hover {
+            background-color: #f8fafc;
+        }
+
+        .bot-card.selected {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .bot-card:last-child {
+            border-bottom: none;
+        }
+
+        .bot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .bot-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1e293b;
+        }
+
+        .bot-id {
+            font-size: 12px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .bot-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .bot-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bot-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+        }
+
+        .bot-status.online {
+            background-color: #10b981;
+        }
+
+        .config-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .config-header {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .config-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .config-subtitle {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .config-content {
+            padding: 20px;
+        }
+
+        .config-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-actions {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚙️ Bot Configuration Manager</h1>
+        <p>Configure your Discord bots, manage personalities, and customize behavior</p>
+    </div>
+
+    <div class="container">
+        <div class="toolbar">
+            <button class="btn btn-primary" id="refreshBtn">
+                🔄 Refresh
+            </button>
+            <button class="btn btn-secondary" id="importBtn">
+                📥 Import Config
+            </button>
+            <button class="btn btn-secondary" id="exportBtn">
+                📤 Export Config
+            </button>
+            <button class="btn btn-success" id="saveBtn">
+                💾 Save Changes
+            </button>
+        </div>
+
+        <div class="main-content">
+            <div class="bots-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Your Bots</h2>
+                    <button class="btn btn-primary" id="addBotBtn">➕ Add Bot</button>
+                </div>
+                <div class="bots-list" id="botsList">
+                    <div style="text-align: center; padding: 40px; color: #64748b;">
+                        <div class="loading"></div><br>
+                        Loading bots...
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-panel">
+                <div class="config-header">
+                    <h3 class="config-title">Bot Configuration</h3>
+                    <p class="config-subtitle">Select a bot from the list to configure</p>
+                </div>
+                <div class="config-content" id="configContent">
+                    <div style="text-align: center; padding: 40px; color: #64748b;">
+                        👈 Select a bot from the list to configure its settings
+                    </div>
+                </div>
+                <div class="form-actions hidden" id="formActions">
+                    <button class="btn btn-secondary" id="resetBtn">🔄 Reset</button>
+                    <button class="btn btn-success" id="applyBtn">✅ Apply Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding new bot -->
+    <div class="modal" id="addBotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Bot</h3>
+                <button class="close-btn" id="closeAddBotModal">&times;</button>
+            </div>
+            <div class="config-content">
+                <div class="form-group">
+                    <label class="form-label" for="newBotName">Bot Name</label>
+                    <input type="text" id="newBotName" class="form-input" placeholder="e.g., MyAwesomeBot">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newBotToken">Discord Token</label>
+                    <input type="password" id="newBotToken" class="form-input" placeholder="Your bot token">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancelAddBot">Cancel</button>
+                    <button class="btn btn-success" id="createBotBtn">Create Bot</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentBotId = null;
+        let currentConfig = null;
+        let originalConfig = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadBots();
+        });
+
+        function setupEventListeners() {
+            // Main buttons
+            document.getElementById('refreshBtn').addEventListener('click', loadBots);
+            document.getElementById('saveBtn').addEventListener('click', saveAllConfigs);
+            document.getElementById('importBtn').addEventListener('click', importConfig);
+            document.getElementById('exportBtn').addEventListener('click', exportConfig);
+            document.getElementById('addBotBtn').addEventListener('click', showAddBotModal);
+
+            // Form actions
+            document.getElementById('resetBtn').addEventListener('click', resetConfig);
+            document.getElementById('applyBtn').addEventListener('click', applyConfig);
+
+            // Modal actions
+            document.getElementById('closeAddBotModal').addEventListener('click', () => {
+                document.getElementById('addBotModal').classList.remove('show');
+            });
+            document.getElementById('cancelAddBot').addEventListener('click', () => {
+                document.getElementById('addBotModal').classList.remove('show');
+            });
+            document.getElementById('createBotBtn').addEventListener('click', createBot);
+        }
+
+        async function loadBots() {
+            const botsList = document.getElementById('botsList');
+            botsList.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading"></div><br>Loading bots...</div>';
+
+            try {
+                const result = await window.electronAPI.getBotConfigs();
+
+                if (result.success) {
+                    displayBots(result.bots);
+                } else {
+                    botsList.innerHTML = `<div style="text-align: center; padding: 40px; color: #ef4444;">Error: ${result.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Error loading bots:', error);
+                botsList.innerHTML = '<div style="text-align: center; padding: 40px; color: #ef4444;">Failed to load bots</div>';
+            }
+        }
+
+        function displayBots(bots) {
+            const botsList = document.getElementById('botsList');
+
+            if (!bots || bots.length === 0) {
+                botsList.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #64748b;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🤖</div>
+                        No bots configured yet.<br>
+                        Click "Add Bot" to get started!
+                    </div>
+                `;
+                return;
+            }
+
+            botsList.innerHTML = bots.map(bot => `
+                <div class="bot-card ${bot.id === currentBotId ? 'selected' : ''}" onclick="selectBot('${bot.id}')">
+                    <div class="bot-header">
+                        <div>
+                            <div class="bot-name">${bot.name || 'Unnamed Bot'}</div>
+                            <div class="bot-id">${bot.id || 'No ID'}</div>
+                        </div>
+                        <div class="bot-status ${bot.status === 'online' ? 'online' : ''}"></div>
+                    </div>
+                    <div class="bot-meta">
+                        <span>🎯 ${bot.responseProbability ? (bot.responseProbability * 100) + '%' : 'N/A'}</span>
+                        <span>💬 ${bot.languageSkills?.languages?.length || 0} languages</span>
+                    </div>
+                    <div style="font-size: 14px; color: #64748b;">
+                        Personality: ${bot.personality ? bot.personality.substring(0, 50) + '...' : 'Not set'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectBot(botId) {
+            currentBotId = botId;
+            loadBots(); // Refresh selection
+
+            try {
+                const result = await window.electronAPI.getBotConfig(botId);
+
+                if (result.success) {
+                    currentConfig = JSON.parse(JSON.stringify(result.config)); // Deep copy
+                    originalConfig = JSON.parse(JSON.stringify(result.config)); // Store original
+                    displayConfig(result.config);
+                    document.getElementById('formActions').classList.remove('hidden');
+                } else {
+                    alert(`Failed to load bot config: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error loading bot config:', error);
+                alert('Failed to load bot configuration');
+            }
+        }
+
+        function displayConfig(config) {
+            const configContent = document.getElementById('configContent');
+            configContent.innerHTML = `
+                <div class="config-section">
+                    <h4 class="section-title">Basic Settings</h4>
+                    <div class="form-group">
+                        <label class="form-label">Bot Name</label>
+                        <input type="text" class="form-input" id="configName" value="${config.name || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Response Probability (0.0 - 1.0)</label>
+                        <input type="number" class="form-input" id="configResponseProb" value="${config.responseProbability || 0.08}" min="0" max="1" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">DM Response Probability (0.0 - 1.0)</label>
+                        <input type="number" class="form-input" id="configDmResponseProb" value="${config.dmResponseProbability || 1.0}" min="0" max="1" step="0.01">
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h4 class="section-title">Personality & Language</h4>
+                    <div class="form-group">
+                        <label class="form-label">Personality Description</label>
+                        <textarea class="form-textarea" id="configPersonality">${config.personality || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Primary Language</label>
+                        <select class="form-select" id="configLanguage">
+                            <option value="en" ${config.language === 'en' ? 'selected' : ''}>English</option>
+                            <option value="fi" ${config.language === 'fi' ? 'selected' : ''}>Finnish</option>
+                            <option value="es" ${config.language === 'es' ? 'selected' : ''}>Spanish</option>
+                            <option value="fr" ${config.language === 'fr' ? 'selected' : ''}>French</option>
+                            <option value="de" ${config.language === 'de' ? 'selected' : ''}>German</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h4 class="section-title">Behavior Settings</h4>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configIdleChatter" ${config.idleChatterEnabled ? 'checked' : ''}>
+                        <label for="configIdleChatter">Enable idle chatter</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Idle Chatter Interval (minutes)</label>
+                        <input type="number" class="form-input" id="configIdleInterval" value="${config.idleChatterIntervalMinutes || 60}" min="1">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configDelayedReaction" ${config.delayedReactionEnabled ? 'checked' : ''}>
+                        <label for="configDelayedReaction">Enable delayed reactions</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configFollowUp" ${config.followUpEnabled ? 'checked' : ''}>
+                        <label for="configFollowUp">Enable follow-up messages</label>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h4 class="section-title">ElevenLabs Agent Integration</h4>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="configUseAgent" ${config.useElevenLabsAgent ? 'checked' : ''}>
+                        <label for="configUseAgent">Use ElevenLabs Agent</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Agent ID</label>
+                        <input type="text" class="form-input" id="configAgentId" value="${config.elevenLabsAgentId || ''}" placeholder="agent_...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Agent Language</label>
+                        <select class="form-select" id="configAgentLanguage">
+                            <option value="en" ${config.elevenLabsAgentLanguage === 'en' ? 'selected' : ''}>English</option>
+                            <option value="fi" ${config.elevenLabsAgentLanguage === 'fi' ? 'selected' : ''}>Finnish</option>
+                            <option value="es" ${config.elevenLabsAgentLanguage === 'es' ? 'selected' : ''}>Spanish</option>
+                            <option value="fr" ${config.elevenLabsAgentLanguage === 'fr' ? 'selected' : ''}>French</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function applyConfig() {
+            if (!currentBotId || !currentConfig) {
+                alert('No bot selected');
+                return;
+            }
+
+            // Update currentConfig with form values
+            currentConfig.name = document.getElementById('configName').value;
+            currentConfig.responseProbability = parseFloat(document.getElementById('configResponseProb').value);
+            currentConfig.dmResponseProbability = parseFloat(document.getElementById('configDmResponseProb').value);
+            currentConfig.personality = document.getElementById('configPersonality').value;
+            currentConfig.language = document.getElementById('configLanguage').value;
+
+            currentConfig.idleChatterEnabled = document.getElementById('configIdleChatter').checked;
+            currentConfig.idleChatterIntervalMinutes = parseInt(document.getElementById('configIdleInterval').value);
+            currentConfig.delayedReactionEnabled = document.getElementById('configDelayedReaction').checked;
+            currentConfig.followUpEnabled = document.getElementById('configFollowUp').checked;
+
+            currentConfig.useElevenLabsAgent = document.getElementById('configUseAgent').checked;
+            currentConfig.elevenLabsAgentId = document.getElementById('configAgentId').value;
+            currentConfig.elevenLabsAgentLanguage = document.getElementById('configAgentLanguage').value;
+
+            try {
+                const result = await window.electronAPI.updateBotConfig(currentBotId, currentConfig);
+
+                if (result.success) {
+                    alert('Configuration applied successfully!');
+                    originalConfig = JSON.parse(JSON.stringify(currentConfig));
+                } else {
+                    alert(`Failed to apply config: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error applying config:', error);
+                alert('Failed to apply configuration');
+            }
+        }
+
+        function resetConfig() {
+            if (originalConfig) {
+                currentConfig = JSON.parse(JSON.stringify(originalConfig));
+                displayConfig(currentConfig);
+            }
+        }
+
+        async function saveAllConfigs() {
+            try {
+                const result = await window.electronAPI.saveBotConfigs();
+
+                if (result.success) {
+                    alert('All configurations saved successfully!');
+                } else {
+                    alert(`Failed to save configs: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error saving configs:', error);
+                alert('Failed to save configurations');
+            }
+        }
+
+        async function importConfig() {
+            // In a real implementation, this would open a file dialog
+            alert('Import functionality coming soon! This will allow you to import bot configurations from JSON files.');
+        }
+
+        async function exportConfig() {
+            try {
+                const result = await window.electronAPI.exportBotConfigs();
+
+                if (result.success) {
+                    alert('Bot configurations exported successfully!');
+                } else {
+                    alert(`Failed to export configs: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error exporting configs:', error);
+                alert('Failed to export configurations');
+            }
+        }
+
+        function showAddBotModal() {
+            document.getElementById('addBotModal').classList.add('show');
+        }
+
+        async function createBot() {
+            const name = document.getElementById('newBotName').value.trim();
+            const token = document.getElementById('newBotToken').value.trim();
+
+            if (!name || !token) {
+                alert('Please fill in both bot name and token');
+                return;
+            }
+
+            try {
+                const result = await window.electronAPI.createBot(name, token);
+
+                if (result.success) {
+                    document.getElementById('addBotModal').classList.remove('show');
+                    document.getElementById('newBotName').value = '';
+                    document.getElementById('newBotToken').value = '';
+                    loadBots();
+                    alert(`Bot "${name}" created successfully!`);
+                } else {
+                    alert(`Failed to create bot: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error creating bot:', error);
+                alert('Failed to create bot');
+            }
+        }
+
+        // Global functions for onclick handlers
+        window.selectBot = selectBot;
+    </script>
+</body>
+</html>
