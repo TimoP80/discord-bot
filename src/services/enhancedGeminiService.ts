@@ -23,6 +23,12 @@ export interface EnhancedGenerationConfig {
   preferredProvider?: string;
   forceProvider?: string;
   enableFinnishMode?: boolean;
+  conversationHistory?: string;
+  recentTopics?: string[];
+  relationshipLevel?: string;
+  conversationSummary?: string;
+  userNickname?: string;
+  aiNickname?: string;
 }
 
 export interface GenerationResult {
@@ -102,20 +108,81 @@ CRITICAL RULES:
     return baseInstruction;
   }
 
-  static enhancePromptForFinnish(prompt: string, user: User): string {
+  static enhancePromptForFinnish(prompt: string, user: User, config: EnhancedGenerationConfig = {}): string {
     const userLanguages = getAllLanguages(user.languageSkills);
     const primaryLanguage = userLanguages[0] || 'English';
     
     if (primaryLanguage === 'Finnish') {
-      return `KÄYTTÄJÄN VIESTI:
+      let enhancedPrompt = `KÄYTTÄJÄN VIESTI:
 ${prompt}
 
-VASTAA SUORAAN YLLÄ OLEVAAN VIESTIIN. ÄLÄ SELITÄ MITEN VASTASIT. ÄLÄ KÄYTÄ AJATTELUPROSESSISANOJA. VASTAA TIIVIÄSTI JA SUORANA.
+`;
+      
+      // Add conversation context if available
+      if (config.conversationHistory) {
+        enhancedPrompt += `KESKUSTELUHISTORIA:
+${config.conversationHistory}
 
-MUISTA NOUTAUTA: ${user.nickname}`;
+`;
+      }
+      
+      // Add conversation summary if available
+      if (config.conversationSummary) {
+        enhancedPrompt += `KESKUSTELUN YHTEENVETO:
+${config.conversationSummary}
+
+`;
+      }
+      
+      // Add recent topics if available
+      if (config.recentTopics && config.recentTopics.length > 0) {
+        enhancedPrompt += `VIIMEISIMMÄT AIHEET:
+${config.recentTopics.join(', ')}
+
+`;
+      }
+      
+      // Add relationship context if available
+      if (config.relationshipLevel) {
+        enhancedPrompt += `SUHDE TASO:
+${config.relationshipLevel}
+
+`;
+      }
+      
+      enhancedPrompt += `TÄRKEÄÄ OHJEET:
+- VASTAA SUORAAN YLLÄ OLEVAAN VIESTIIN
+- ÄLÄ SELITÄ MITEN VASTASIT
+- ÄLÄ KÄYTÄ AJATTELUPROSESSISANOJA
+- VASTAA TIIVIÄSTI JA SUORANA
+- OLE Tietoinen keskusteluhistoriasta ja aiheista
+- ÄLÄ TOISTA KYSYMYKSIÄ JOTKA ON JO KYSYTTY
+
+MUISTA NOUTAUTA: ${config.aiNickname || user.nickname}`;
+      
+      return enhancedPrompt;
     }
     
-    return prompt;
+    // For English, add context similarly
+    let enhancedPrompt = prompt;
+    
+    if (config.conversationHistory) {
+      enhancedPrompt += `\n\nCONVERSATION HISTORY:\n${config.conversationHistory}`;
+    }
+    
+    if (config.conversationSummary) {
+      enhancedPrompt += `\n\nCONVERSATION SUMMARY:\n${config.conversationSummary}`;
+    }
+    
+    if (config.recentTopics && config.recentTopics.length > 0) {
+      enhancedPrompt += `\n\nRECENT TOPICS:\n${config.recentTopics.join(', ')}`;
+    }
+    
+    if (config.relationshipLevel) {
+      enhancedPrompt += `\n\nRELATIONSHIP LEVEL:\n${config.relationshipLevel}`;
+    }
+    
+    return enhancedPrompt;
   }
 }
 
@@ -139,7 +206,7 @@ export class EnhancedGeminiService {
     try {
       // Generate enhanced prompt for Finnish language support
       const systemInstruction = this.finnishPromptGenerator.generateSystemInstruction(user, config);
-      const enhancedPrompt = this.finnishPromptGenerator.enhancePromptForFinnish(prompt, user);
+      const enhancedPrompt = this.finnishPromptGenerator.enhancePromptForFinnish(prompt, user, config);
 
       // Determine provider strategy
       let provider = config.forceProvider || config.preferredProvider;
@@ -256,30 +323,37 @@ export class EnhancedGeminiService {
     const userLanguages = getAllLanguages(user.languageSkills);
     const primaryLanguage = userLanguages[0] || 'English';
     
-    // Get available providers ordered by priority (configured in .env)
+    // Get available providers ordered by actual configured priority (from .env)
     const availableProviders = this.multiProvider.getAvailableProviders();
     
-    // For Finnish language, still prioritize but respect the priority system
+    // Get providers with their actual priorities from the multi-provider service
+    const providerPriorities = this.multiProvider.getProviderPriorities();
+    
+    // Sort available providers by their configured priority (lower number = higher priority)
+    const sortedProviders = availableProviders
+      .map(provider => ({
+        name: provider,
+        priority: providerPriorities[provider] || 999
+      }))
+      .sort((a, b) => a.priority - b.priority)
+      .map(p => p.name);
+    
+    aiDebug.log(`🎯 Available providers sorted by priority: ${sortedProviders.join(' -> ')}`);
+    
+    // For Finnish language, prefer the highest priority provider (respecting .env configuration)
     if (primaryLanguage === 'Finnish' || config.enableFinnishMode) {
-      // Priority order from .env: AIML > OllamaCloud > Ollama > Gemini > OpenAI > Anthropic > Custom
-      const finnishPriorityOrder = ['AIML', 'OllamaCloud', 'Ollama', 'Gemini', 'OpenAI', 'Anthropic', 'Custom'];
-      
-      for (const provider of finnishPriorityOrder) {
-        if (availableProviders.includes(provider)) {
-          aiDebug.log(`🎯 Selected ${provider} for Finnish content (priority-based)`);
-          return provider;
-        }
+      const selectedProvider = sortedProviders[0];
+      if (selectedProvider) {
+        aiDebug.log(`🎯 Selected ${selectedProvider} for Finnish content (priority ${providerPriorities[selectedProvider]})`);
+        return selectedProvider;
       }
     }
 
-    // For English or other languages, use the configured priority order
-    const priorityOrder = ['AIML', 'OllamaCloud', 'Ollama', 'Gemini', 'OpenAI', 'Anthropic', 'Custom'];
-    
-    for (const provider of priorityOrder) {
-      if (availableProviders.includes(provider)) {
-        aiDebug.log(`🎯 Selected ${provider} for content (priority-based)`);
-        return provider;
-      }
+    // For English or other languages, use the highest priority provider
+    const selectedProvider = sortedProviders[0];
+    if (selectedProvider) {
+      aiDebug.log(`🎯 Selected ${selectedProvider} for content (priority ${providerPriorities[selectedProvider]})`);
+      return selectedProvider;
     }
 
     // Fallback to any available provider
@@ -288,8 +362,8 @@ export class EnhancedGeminiService {
       return availableProviders[0];
     }
 
-    // Default to first available
-    return availableProviders[0] || 'Unknown';
+    // Default fallback
+    return 'Unknown';
   }
 
   /**

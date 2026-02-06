@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-02-06
+
+### **Critical Fixes: Conversation Context & Provider Consistency**
+
+#### **Enhanced Conversation Context System**
+- **Fixed Context Loss**: Resolved issue where bot was asking repetitive questions and ignoring previous discussions
+- **Rich Context Integration**: Added comprehensive conversation history, summary, topics, and relationship level to all AI responses
+- **Enhanced Prompt Generation**: Updated `FinnishPromptGenerator` to include structured context sections for better awareness
+- **Memory Consistency**: Bot now maintains awareness of previous topics and avoids repetitive questioning
+
+#### **Provider Consistency Improvements**
+- **Unified Provider Selection**: Updated all generation functions to use enhanced multi-provider system
+- **Eliminated Mixed Provider Usage**: Fixed functions that were still using old `generateContentUnified` system
+- **100% OllamaCloud Consistency**: All Finnish content now consistently uses mistral-large-3:675b
+- **Functions Updated**: `generateChannelActivity`, `generateReactionToMessage`, `generateFollowUpMessage`, `generateOperatorResponse`, `generateInCharacterComment`
+
+#### **Enhanced Configuration Interface**
+- **Extended EnhancedGenerationConfig**: Added fields for conversation history, summary, topics, relationship level, and nicknames
+- **Improved Context Passing**: Updated main service to pass rich context to enhanced multi-provider system
+- **Better Finnish Instructions**: Added specific directives to avoid repetitive questions and maintain conversation awareness
+
+#### **User Experience Improvements**
+- **Natural Conversation Flow**: Follow-up messages now reference previous discussions naturally
+- **No More Repetitive Questions**: Bot explicitly avoids asking questions that have already been answered
+- **Consistent Personality**: All response types maintain consistent character and tone
+- **Contextual Responses**: Bot demonstrates awareness of shared topics and conversation history
+
+#### **Technical Enhancements**
+- **Debug Logging**: Added comprehensive logging for provider selection and context usage
+- **Interface Updates**: Enhanced `generateContentEnhanced` to support full context parameters
+- **Scope Optimization**: Fixed variable scoping issues in conversation context handling
+- **Validation Improvements**: Enhanced testing for provider consistency and context awareness
+
+### **Impact**
+This release delivers **major improvements in conversation quality** by ensuring the bot maintains context across all interactions and consistently uses the optimal AI provider. Users will experience more natural, context-aware conversations with no repetitive questioning or provider switching.
+
+---
+
 ## [4.1.0] - 2026-02-06
 
 ### **Major Feature: Enterprise Multi-Provider AI System**

@@ -402,6 +402,12 @@ export const generateContentEnhanced = async (
     model?: string;
     preferredProvider?: string;
     enableFinnishMode?: boolean;
+    conversationHistory?: string;
+    conversationSummary?: string;
+    recentTopics?: string[];
+    relationshipLevel?: string;
+    userNickname?: string;
+    aiNickname?: string;
   }
 ): Promise<string> => {
   try {
@@ -413,6 +419,12 @@ export const generateContentEnhanced = async (
       model: config?.model,
       preferredProvider: config?.preferredProvider,
       enableFinnishMode: config?.enableFinnishMode,
+      conversationHistory: config?.conversationHistory,
+      conversationSummary: config?.conversationSummary,
+      recentTopics: config?.recentTopics,
+      relationshipLevel: config?.relationshipLevel,
+      userNickname: config?.userNickname,
+      aiNickname: config?.aiNickname,
     });
 
     aiDebug.log(`✅ Enhanced generation completed using ${result.provider} in ${result.responseTime}ms`);
@@ -2061,9 +2073,25 @@ The message must be a single line containing ONLY the message content.
           await simulateTypingDelay(result.length, { enabled: true, baseDelay: 30, maxDelay: 100 });
         }
       } else {
-        const config = createApiConfig(validatedModel, tokenLimit, systemInstruction, finalTemperature);
-
-        result = await generateContentUnified(prompt, validatedModel, config);
+        // Use enhanced multi-provider system for consistent provider selection
+        aiDebug.log(`Using enhanced multi-provider system for channel activity from ${randomUser.nickname}`);
+        
+        // Prepare conversation context for enhanced service
+        const recentMessages = channel.messages.slice(-20);
+        const messageHistory = formatEnhancedMessageHistory(recentMessages);
+        
+        result = await generateContentEnhanced(prompt, randomUser, {
+          enableFinnishMode: primaryLanguage === 'Finnish',
+          temperature: finalTemperature,
+          maxTokens: tokenLimit,
+          model: validatedModel,
+          conversationHistory: messageHistory,
+          conversationSummary: `Channel activity in ${channel.name}, recent topics: ${recentTopics.join(', ')}`,
+          recentTopics: recentTopics,
+          relationshipLevel: 'channel participant',
+          userNickname: 'channel',
+          aiNickname: randomUser.nickname
+        });
 
         // Self-tagging prevention cleanup
         const prefixRegex = new RegExp(`^${randomUser.nickname}:\\s*`, 'i');
@@ -2256,9 +2284,25 @@ Generate a new, single, in-character reaction from ${randomUser.nickname}.
           await simulateTypingDelay(result.length, { enabled: true, baseDelay: 30, maxDelay: 100 });
         }
       } else {
-        const config = createApiConfig(validatedModel, tokenLimit, systemInstruction, finalTemperature);
-
-        result = await generateContentUnified(prompt, validatedModel, config);
+        // Use enhanced multi-provider system for consistent provider selection
+        aiDebug.log(`Using enhanced multi-provider system for reaction from ${randomUser.nickname}`);
+        
+        // Prepare conversation context for enhanced service
+        const recentMessages = channel.messages.slice(-20);
+        const messageHistory = formatEnhancedMessageHistory(recentMessages);
+        
+        result = await generateContentEnhanced(prompt, randomUser, {
+          enableFinnishMode: primaryLanguage === 'Finnish',
+          temperature: finalTemperature,
+          maxTokens: tokenLimit,
+          model: validatedModel,
+          conversationHistory: messageHistory,
+          conversationSummary: `Reaction to ${userMessage.nickname}'s message in ${channel.name}: ${messageDescription}`,
+          recentTopics: extractRecentTopics(channel.messages),
+          relationshipLevel: 'channel participant',
+          userNickname: userMessage.nickname,
+          aiNickname: randomUser.nickname
+        });
 
         // Self-tagging prevention cleanup
         const prefixRegex = new RegExp(`^${randomUser.nickname}:\\s*`, 'i');
@@ -2827,12 +2871,14 @@ DO NOT use this tag too often.
 
   // CONSTRUCT USER PROMPT (Optimized for Ollama)
   let userPrompt: string;
+  
+  // Define message history for both Ollama and enhanced service
+  const recentMessages = conversation.messages.slice(-20); // Limit to last 20 for context
+  const messageHistory = formatEnhancedMessageHistory(recentMessages);
 
   if (willUseOllama) {
     // Simplified, more direct prompt for Ollama
     // But with STRONG Finnish language enforcement in the prompt itself
-    const recentMessages = conversation.messages.slice(-20); // Limit to last 20 for Ollama
-    const messageHistory = formatEnhancedMessageHistory(recentMessages);
 
     if (primaryLanguage === 'Finnish') {
       userPrompt = `${timeContext ? `${timeContext}\n\n` : ''}Olet ${aiUser.nickname} keskustelemassa ${currentUserNickname}:n kanssa yksityisviestissä.
@@ -2962,7 +3008,13 @@ DO NOT wrap your response in quotes or quotation marks.
           enableFinnishMode: userLanguages.includes('Finnish'),
           temperature: temperature,
           maxTokens: tokenLimit,
-          model: validatedModel
+          model: validatedModel,
+          conversationHistory: messageHistory,
+          conversationSummary: conversationSummary,
+          recentTopics: conversationContext.recentTopics,
+          relationshipLevel: conversationContext.relationshipLevel,
+          userNickname: currentUserNickname,
+          aiNickname: aiUser.nickname
         });
 
         // --- SAFETY CHECKS ---
@@ -3429,20 +3481,23 @@ The message must be a single line containing ONLY the message content.
         aiDebug.warn(`[LOOP DEBUG] Degraded mode active; skipping autonomous follow-up from ${aiUser.nickname}`);
         result = '';
       } else {
+        // Use enhanced multi-provider system for consistent provider selection
+        aiDebug.log(`Using enhanced multi-provider system for follow-up message from ${aiUser.nickname}`);
+        
         const temperature = 0.8 + (Math.random() * 0.2);
-        const config = createApiConfig(validatedModel, tokenLimit, systemInstruction, temperature);
-
-        const fallbackModels: string[] = [];
-        if (validatedModel !== 'gemini-2.5-flash-lite') {
-          fallbackModels.push('gemini-2.5-flash-lite');
-        }
-        // Only add Ollama if it's configured and likely running
-        const ollamaConfig = getOllamaConfig();
-        if (ollamaConfig.enabled) {
-          fallbackModels.push('ollama');
-        }
-
-        result = await generateContentUnified(prompt, validatedModel, config, fallbackModels);
+        
+        result = await generateContentEnhanced(prompt, aiUser, {
+          enableFinnishMode: primaryLanguage === 'Finnish',
+          temperature: temperature,
+          maxTokens: tokenLimit,
+          model: validatedModel,
+          conversationHistory: formatEnhancedMessageHistory(messages),
+          conversationSummary: conversationSummary,
+          recentTopics: conversationContext.recentTopics,
+          relationshipLevel: conversationContext.relationshipLevel,
+          userNickname: currentUserNickname,
+          aiNickname: aiUser.nickname
+        });
 
         const prefixRegex = new RegExp(`^${aiUser.nickname}:\\s*`, 'i');
         if (prefixRegex.test(result)) {
@@ -3608,9 +3663,22 @@ Make your decision and respond as ${operator.nickname}:
           await simulateTypingDelay(result.length, { enabled: true, baseDelay: 30, maxDelay: 100 });
         }
       } else {
-        const config = createApiConfig(validatedModel, tokenLimit, getOperatorSystemInstruction(requestingUser, operator), 0.8, 1000);
-
-        result = await generateContentUnified(prompt, validatedModel, config);
+        // Use enhanced multi-provider system for consistent provider selection
+        aiDebug.log(`Using enhanced multi-provider system for operator response from ${operator.nickname}`);
+        
+        result = await generateContentEnhanced(prompt, operator, {
+          enableFinnishMode: primaryLanguage === 'Finnish',
+          temperature: 0.8,
+          maxTokens: tokenLimit,
+          model: validatedModel,
+          conversationHistory: messageHistory,
+          conversationSummary: `Operator request in ${channel.name} from ${requestingUser}`,
+          recentTopics: extractRecentTopics(channel.messages),
+          relationshipLevel: 'moderator',
+          userNickname: requestingUser,
+          aiNickname: operator.nickname
+        });
+        
         aiDebug.log(`Successfully generated operator response: "${result}"`);
       }
     } catch (apiError) {
@@ -4688,8 +4756,22 @@ Your writing style:
 `;
 
   try {
-    const config = createApiConfig(validatedModel, 100, getBaseSystemInstruction(''), 0.8);
-    const result = await generateContentUnified(prompt, validatedModel, config);
+    // Use enhanced multi-provider system for consistent provider selection
+    aiDebug.log(`Using enhanced multi-provider system for in-character comment from ${user.nickname}`);
+    
+    const result = await generateContentEnhanced(prompt, user, {
+      enableFinnishMode: primaryLanguage === 'Finnish',
+      temperature: 0.8,
+      maxTokens: 100,
+      model: validatedModel,
+      conversationHistory: '',
+      conversationSummary: `In-character comment about: ${analysis}`,
+      recentTopics: [],
+      relationshipLevel: 'general',
+      userNickname: 'system',
+      aiNickname: user.nickname
+    });
+    
     return result;
   } catch (error) {
     aiDebug.error(`Error generating in-character comment from ${user.nickname}:`, error);

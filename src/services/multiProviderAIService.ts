@@ -723,6 +723,30 @@ export class MultiProviderAIService {
       .map(provider => provider.name);
   }
 
+  getProviderPriorities(): { [key: string]: number } {
+    const priorities: { [key: string]: number } = {};
+    const configs = this.getProviderConfigs();
+    
+    // Map provider names to config keys
+    const providerToConfigKey: { [key: string]: string } = {
+      'OpenAI': 'openai',
+      'Anthropic': 'anthropic', 
+      'Gemini': 'gemini',
+      'Ollama': 'ollama',
+      'OllamaCloud': 'ollamaCloud',
+      'AIML': 'aiml',
+      'Custom API': 'custom'
+    };
+    
+    this.providers.forEach(provider => {
+      const configKey = providerToConfigKey[provider.name] || provider.name.toLowerCase();
+      const config = configs[configKey as keyof typeof configs];
+      priorities[provider.name] = config?.priority || 999;
+    });
+    
+    return priorities;
+  }
+
   getProviderStatus(): { [key: string]: boolean } {
     const status: { [key: string]: boolean } = {};
     this.providers.forEach(provider => {
