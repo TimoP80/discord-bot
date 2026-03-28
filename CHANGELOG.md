@@ -5,40 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2026-03-28
+
+### **Conversation Diversity Enhancement**
+
+#### **Random Redirection System**
+
+- **Added Diversity Prompts**: New `getRandomRedirectionPrompt()` function provides 8 different random redirection instructions to prevent repetitive conversation patterns
+- **System Instruction Integration**: Diversity prompts are now included in the base system instruction alongside existing dynamic style nuances
+- **Pattern Prevention**: Each message generation now includes a randomly selected prompt from strategies including:
+  - Changing subjects naturally
+  - Sharing personal information or asking about user's day
+  - Varying responses (not always agreeing)
+  - Shifting to hobbies and interests
+  - Adding variety with jokes or unexpected questions
+  - Balancing questions with statements
+  - Keeping responses fresh
+  - Pivoting to new topics
+
+#### **Impact**
+
+This release helps prevent the bot from getting stuck in repetitive conversation patterns by providing constant diversity prompts that encourage varied responses, new topics, and natural conversation flow.
+
+---
+
 ## [4.1.1] - 2026-02-06
 
 ### **Critical Fixes: Conversation Context & Provider Consistency**
 
 #### **Enhanced Conversation Context System**
+
 - **Fixed Context Loss**: Resolved issue where bot was asking repetitive questions and ignoring previous discussions
 - **Rich Context Integration**: Added comprehensive conversation history, summary, topics, and relationship level to all AI responses
 - **Enhanced Prompt Generation**: Updated `FinnishPromptGenerator` to include structured context sections for better awareness
 - **Memory Consistency**: Bot now maintains awareness of previous topics and avoids repetitive questioning
 
 #### **Provider Consistency Improvements**
+
 - **Unified Provider Selection**: Updated all generation functions to use enhanced multi-provider system
 - **Eliminated Mixed Provider Usage**: Fixed functions that were still using old `generateContentUnified` system
 - **100% OllamaCloud Consistency**: All Finnish content now consistently uses mistral-large-3:675b
 - **Functions Updated**: `generateChannelActivity`, `generateReactionToMessage`, `generateFollowUpMessage`, `generateOperatorResponse`, `generateInCharacterComment`
 
 #### **Enhanced Configuration Interface**
+
 - **Extended EnhancedGenerationConfig**: Added fields for conversation history, summary, topics, relationship level, and nicknames
 - **Improved Context Passing**: Updated main service to pass rich context to enhanced multi-provider system
 - **Better Finnish Instructions**: Added specific directives to avoid repetitive questions and maintain conversation awareness
 
 #### **User Experience Improvements**
+
 - **Natural Conversation Flow**: Follow-up messages now reference previous discussions naturally
 - **No More Repetitive Questions**: Bot explicitly avoids asking questions that have already been answered
 - **Consistent Personality**: All response types maintain consistent character and tone
 - **Contextual Responses**: Bot demonstrates awareness of shared topics and conversation history
 
 #### **Technical Enhancements**
+
 - **Debug Logging**: Added comprehensive logging for provider selection and context usage
 - **Interface Updates**: Enhanced `generateContentEnhanced` to support full context parameters
 - **Scope Optimization**: Fixed variable scoping issues in conversation context handling
 - **Validation Improvements**: Enhanced testing for provider consistency and context awareness
 
 ### **Impact**
+
 This release delivers **major improvements in conversation quality** by ensuring the bot maintains context across all interactions and consistently uses the optimal AI provider. Users will experience more natural, context-aware conversations with no repetitive questioning or provider switching.
 
 ---
@@ -50,42 +80,49 @@ This release delivers **major improvements in conversation quality** by ensuring
 **Revolutionary**: Complete transformation from single-provider to enterprise-grade multi-provider AI system with cloud-first reliability!
 
 #### **Cloud-First Reliability**
+
 - **OllamaCloud Integration**: Primary provider mistral-large-3:675b with perfect Finnish quality (100/100 scores)
 - **Rate Limit Elimination**: Zero rate limits with intelligent 6-layer fallback system
 - **Cloud Speed**: Fast responses (2-5 seconds) with 2000 token capacity
 - **Multi-Provider Architecture**: 7 AI providers (OllamaCloud, Gemini, OpenAI, Anthropic, AI/ML API, Custom APIs, Local Ollama)
 
 #### **Intelligent Fallback System**
+
 - **Priority-Based Selection**: Automatic provider switching based on availability and priority
 - **Health Monitoring**: Real-time provider availability checks and status tracking
 - **Seamless Switching**: Transparent fallback with no user interruption
 - **Language-Aware Routing**: Finnish language optimization with cultural understanding
 
 #### **Perfect Finnish Language Optimization**
+
 - **100/100 Quality Scores**: mistral-large-3:675b achieves perfect Finnish language quality
 - **Cultural Understanding**: Deep knowledge of Finnish culture (sisu, kalsarikännit, sauna)
 - **Personality Consistency**: Maintained bot character across all providers
 - **Emotional Intelligence**: Superior empathy and emotional support in Finnish
 
 #### **Technical Implementation**
+
 - **MultiProviderAIService**: New service managing all AI providers
 - **Provider Classes**: Individual provider implementations (OllamaCloudProvider, GeminiProvider, etc.)
 - **Configuration Caching**: Fixed environment variable loading and provider filtering
 - **Case Sensitivity Fix**: Resolved OllamaCloud filtering bug (ollamacloud vs ollamaCloud)
 
 #### **Enterprise Reliability Features**
+
 - **Zero Downtime**: 6-layer fallback ensures 100% uptime
 - **Rate Limit Free**: Primary cloud provider eliminates API quota issues
 - **Cost Effective**: Free primary provider with premium quality
 - **Scalable Architecture**: Easy addition of new AI providers
 
 #### **Provider Performance Testing**
+
 - **Comprehensive Testing**: Automated testing framework for provider quality comparison
 - **Finnish Language Validation**: Specialized tests for Finnish language quality
 - **Performance Metrics**: Response time, quality, and reliability tracking
 - **Model Selection**: Data-driven provider optimization
 
 #### **Configuration Management**
+
 - **Enhanced .env Support**: Comprehensive provider configuration options
 - **Priority System**: Configurable provider selection priorities
 - **Token Optimization**: Increased token limits (2000) for complete responses
@@ -100,19 +137,23 @@ This release delivers **major improvements in conversation quality** by ensuring
 - **Fallback**: 6-layer redundancy vs single point of failure
 
 ### **Documentation Updates**
+
 - **Multi-Provider Guide**: Complete setup and configuration documentation
 - **Provider Comparison**: Performance testing results and recommendations
 - **Troubleshooting**: Enhanced debugging and provider selection guides
 - **API Integration**: OllamaCloud setup and configuration instructions
 
 ### **Technical Dependencies**
+
 - **Enhanced Provider Support**: Multiple AI service integrations
 - **Configuration Management**: Improved environment variable handling
 - **Debug Logging**: Comprehensive provider selection and fallback logging
 - **Testing Framework**: Automated provider quality assessment tools
 
 ### **Impact**
+
 This release transforms the Discord bot from a **single-provider system with rate limitations** into an **enterprise-grade multi-provider AI system** with:
+
 - **Perfect Finnish language quality**
 - **Zero rate limitations**
 - **Maximum reliability and uptime**
@@ -130,6 +171,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 **Revolutionary**: Full desktop GUI application for comprehensive bot and agent management!
 
 #### 🤖 ElevenLabs Agent Platform Integration
+
 - **Agent Creation**: Visual interface for creating conversational AI agents with custom personalities
 - **Multi-language Support**: Agents support English, Finnish, Spanish, French, German, and more
 - **Real-time Testing**: Live chat interface to test agent conversations and responses
@@ -138,6 +180,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 - **Personality-based Responses**: Agents respond based on configured personality traits
 
 #### 🖥️ Desktop GUI Application
+
 - **Main Control Panel**: Unified dashboard for accessing all management tools
 - **Agent Manager**: Complete agent creation, testing, and management interface
 - **Bot Configuration Manager**: Visual bot settings editor with personality customization
@@ -146,6 +189,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 - **Menu Integration**: Keyboard shortcuts (Ctrl+A/B/S/L) and menu bar access
 
 #### 🎭 Simulation System
+
 - **Automated Testing**: Full bot simulation environment for testing interactions
 - **Speed Controls**: Adjustable simulation speed (0.25x to 10x) for different scenarios
 - **Activity Monitoring**: Live simulation activity feed with bot interactions
@@ -153,6 +197,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 - **Lifecycle Management**: Start/Pause/Stop simulation controls with configuration
 
 #### 📊 Analytics & Monitoring
+
 - **Real-time Metrics**: Live dashboard with message counts, errors, and response times
 - **Comprehensive Logging**: Activity logs with filtering by time, level, and bot
 - **Performance Analytics**: Top active bots and popular channels tracking
@@ -160,6 +205,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 - **Data Export**: Export logs and analytics for external analysis
 
 #### ⚙️ Enhanced Bot Configuration
+
 - **Visual Editor**: GUI-based bot personality and behavior configuration
 - **ElevenLabs Integration**: Link bots to specific agents and languages
 - **Import/Export**: Backup and restore bot configurations
@@ -182,6 +228,7 @@ This release transforms the Discord bot from a **single-provider system with rat
 ### 🛠️ Technical Implementation
 
 #### New Services Added
+
 - `ElevenLabsAgentService` - Complete agent platform integration
 - `AgentGuiService` - Agent management GUI backend
 - `BotConfigGuiService` - Bot configuration GUI backend
@@ -189,12 +236,14 @@ This release transforms the Discord bot from a **single-provider system with rat
 - `LogsGuiService` - Analytics and logging GUI backend
 
 #### GUI Architecture
+
 - **Electron Main Process**: Window management and IPC coordination
 - **Preload Scripts**: Secure inter-process communication
 - **HTML Interfaces**: Modern, responsive web-based UIs
 - **Real-time Updates**: Live data synchronization across all windows
 
 #### Build System Enhancements
+
 - **HTML File Management**: Automatic copying of GUI files to dist directory
 - **TypeScript Compilation**: All GUI services with full type safety
 - **Preload Script Generation**: Automated secure IPC bridge creation
@@ -211,23 +260,27 @@ This release transforms the Discord bot from a **single-provider system with rat
 - **💾 Data Persistence**: Import/export and backup capabilities
 
 ### 📚 Documentation Updates
+
 - **GUI Usage Guide**: Complete user manual for all GUI features
 - **Keyboard Shortcuts**: Power user shortcuts and navigation
 - **API Integration**: ElevenLabs agent platform documentation
 - **Build Instructions**: Updated setup and deployment guides
 
 ### 🔗 Dependencies Added
+
 - **Electron**: Desktop application framework
 - **Additional IPC**: Inter-process communication enhancements
 - **GUI Utilities**: Interface and user experience libraries
 
 ### 🎶 Practical Implementation
+
 - **TiiaV Agent**: Created production-ready agent based on real bot personality
 - **Demo Scripts**: Comprehensive demonstration of all GUI features
 - **Testing Tools**: Automated testing for agent conversations and GUI functionality
 - **Language Examples**: Finnish and English conversation demonstrations
 
 ### 🎉 Impact
+
 This release transforms the Discord bot from a command-line tool into a **professional desktop application** with comprehensive GUI management. Users can now visually create AI agents, manage bot configurations, run simulations, and monitor performance - all through an intuitive, modern interface.
 
 **Launch the GUI**: `npm run electron` to experience the full feature suite!
@@ -237,10 +290,12 @@ This release transforms the Discord bot from a command-line tool into a **profes
 ## [3.1.0] - 2025-12-13
 
 ### Added
+
 - **Comms Officer Mode**: Added `!status` command to set Discord activity and Voice Chat context simultaneously.
 - **STT Improvements**: Integrated ElevenLabs Scribe v2 and local Whisper support for better speech recognition.
 
 ### Fixed
+
 - Fixed personality consistency issues across different AI models.
 - Resolved ElevenLabs voice configuration and accent issues (specifically for Finnish).
 - Fixed build errors and JSON syntax issues.
@@ -310,11 +365,13 @@ This release transforms the Discord bot from a command-line tool into a **profes
 ## [2.5.0] - 2025-11-17
 
 ### Added
+
 - Added more bot functions
 - increased amount of commands
 - enhanced virtual personality modding
 
 ### Fixed
+
 - Fixed bot login with autorefresh scripts
 
 ## [2.4.0] - 2025-11-15
