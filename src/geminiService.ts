@@ -2375,6 +2375,27 @@ const getRandomRedirectionPrompt = (): string => {
   return redirections[Math.floor(Math.random() * redirections.length)];
 };
 
+// Helper to remove duplicate patterns at end of response
+const removeDuplicateEndPatterns = (response: string): string => {
+  if (!response || response.length < 10) return response;
+
+  let cleaned = response;
+
+  // Remove repeating parentheses content like "(text) (text)" at end
+  cleaned = cleaned.replace(/(\s*\([^)]+\))\s*(\1)+\s*$/g, "");
+
+  // Remove repeating bracket content like "[text][text]" at end
+  cleaned = cleaned.replace(/(\s*\[[^\]]+\])(\s*\1)+\s*$/g, "");
+
+  // Remove repeating word patterns at end (same word 3+ times)
+  cleaned = cleaned.replace(/(\b\w+\b)(\s+\1){2,}\s*$/gi, "");
+
+  // Clean up trailing whitespace
+  cleaned = cleaned.replace(/\s{2,}$/, "").trim();
+
+  return cleaned || response.trim();
+};
+
 export const getBaseSystemInstruction = (
   currentUserNickname: string,
 ) => `You are an advanced AI simulating a Discord server environment.
@@ -3306,6 +3327,9 @@ The message must be a single line containing ONLY the message content.
     // Process recommendation tags (e.g., Spotify, IMDb)
     result = await recommendationService.processTags(result);
 
+    // Remove duplicate patterns at end of response (e.g., "(text) (text)")
+    result = removeDuplicateEndPatterns(result);
+
     return result;
   } catch (error) {
     const errorMessage =
@@ -3664,6 +3688,9 @@ Generate a new, single, in-character reaction from ${randomUser.nickname}.
 
     // Process recommendation tags (e.g., Spotify, IMDb)
     result = await recommendationService.processTags(result);
+
+    // Remove duplicate patterns at end of response
+    result = removeDuplicateEndPatterns(result);
 
     return result;
   } catch (error) {
@@ -5096,6 +5123,9 @@ DO NOT wrap your response in quotes or quotation marks.
 
     // Remove surrounding quotes from the response
     result = result.replace(/^["']|["']$/g, "").trim();
+
+    // Remove duplicate patterns at end of response
+    result = removeDuplicateEndPatterns(result);
 
     return { content: result, imageBuffer, audioBuffer };
   } catch (error) {
