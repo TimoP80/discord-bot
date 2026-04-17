@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.3] - 2026-04-17
+
+### **Conversation Diversity Enhancement**
+
+#### **Random Redirection System**
+
+- **Added Diversity Prompts**: New `getRandomRedirectionPrompt()` function provides 8 different random redirection instructions to prevent repetitive conversation patterns
+- **System Instruction Integration**: Diversity prompts are now included in the base system instruction alongside existing dynamic style nuances
+- **Pattern Prevention**: Each message generation now includes a randomly selected prompt from strategies including:
+  - Changing subjects naturally
+  - Sharing personal information or asking about user's day
+  - Varying responses (not always agreeing)
+  - Shifting to hobbies and interests
+  - Adding variety with jokes or unexpected questions
+  - Balancing questions with statements
+  - Keeping responses fresh
+  - Pivoting to new topics
+
+#### **Impact**
+
+This release helps prevent the bot from getting stuck in repetitive conversation patterns by providing constant diversity prompts that encourage varied responses, new topics, and natural conversation flow.
+
+---
+
+### **Bug Fixes**
+
+- **Duplicate Pattern Removal**: Fixed issue where duplicate patterns appeared at the end of AI responses
+
+---
+
 ## [4.1.2] - 2026-03-28
 
 ### **Conversation Diversity Enhancement**
